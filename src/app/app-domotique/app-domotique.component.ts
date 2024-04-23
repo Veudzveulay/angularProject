@@ -16,26 +16,71 @@ export class AppDomotiqueComponent {
 
   currentDateTime: Date;
 
-  buanderieButtonClass: string;
-
-  salleDeBainButtonClass: string;
-
-  salleMangerButtonClass: string;
-
-  garageButtonClass: string;
-
-  pacButtonClass: string;
-
-  piscineButtonClass: string;
-
-  eventLog: EventLog[] = [];
-
-  // Définition des états explicites
-  stateLabels: { [key: string]: string } = {
-    'btn-off': 'Éteint',
-    'btn-on': 'Allumé',
-    // Ajoutez d'autres états explicites au besoin
+  roomStates: { [key: string]: { 
+    name: string, 
+    state: boolean, 
+    previousState: boolean, 
+    forced: boolean, 
+    startTime: string, 
+    endTime: string, 
+    reversed: boolean 
+  } } = {
+    buanderie: { 
+      name: "Buanderie", 
+      state: false, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:30', 
+      endTime: '10:30', 
+      reversed: false 
+    },
+    salleDeBain: { 
+      name: "Salle de bain", 
+      state: false, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:30', 
+      endTime: '10:30', 
+      reversed: false 
+    },
+    salleManger: { 
+      name: "Salle a manger", 
+      state: false, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:30', 
+      endTime: '10:30', 
+      reversed: false 
+    },
+    garage: { 
+      name: "Garage", 
+      state: false, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:00', 
+      endTime: '09:00', 
+      reversed: false 
+    },
+    pac: { 
+      name: "P.A.C", 
+      state: false, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:00', 
+      endTime: '23:00', 
+      reversed: true 
+    },
+    piscine: { 
+      name: "Piscine", 
+      state: true, 
+      previousState: false, 
+      forced: false, 
+      startTime: '07:00', 
+      endTime: '23:00', 
+      reversed: true 
+    }
   };
+  eventLog: EventLog[] = [];
 
   constructor() { }
 
@@ -69,91 +114,67 @@ export class AppDomotiqueComponent {
     const currentHour = this.currentDateTime.getHours();
 
     // Sauvegarde de l'état précédent
-    const previousState = {
-      buanderie: this.buanderieButtonClass,
-      salleManger: this.salleMangerButtonClass,
-      salleDeBain: this.salleDeBainButtonClass,
-      garage: this.garageButtonClass,
-      pac: this.pacButtonClass,
-      piscine: this.piscineButtonClass
-    };
+    Object.keys(this.roomStates).forEach((room) => {
+      this.roomStates[room].previousState = this.roomStates[room].state;
+      const roomState = this.roomStates[room];
 
-    // Logique pour la buanderie
-    if (currentHour >= 23 || currentHour < 7) {
-      this.buanderieButtonClass = 'btn-off';
-    } else {
-      this.buanderieButtonClass = 'btn-on';
-    }
+      if (roomState.startTime && roomState.endTime && !roomState.forced) {
+        const startHour = parseInt(roomState.startTime.split(':')[0]);
+        const endHour = parseInt(roomState.endTime.split(':')[0]);
 
-    // Logique pour la salle à manger
-    if (currentHour >= 23 || currentHour < 7) {
-      this.salleMangerButtonClass = 'btn-off';
-    } else {
-      this.salleMangerButtonClass = 'btn-on';
-    }
+        if (roomState.reversed) {
+          if (currentHour >= startHour && currentHour < endHour) {
+            // Eteindre la pièce si l'heure actuelle est comprise entre l'heure de début et l'heure de fin
+            roomState.state = false;
+          } 
+        } else {
+          if (currentHour >= startHour && currentHour < endHour) {
+            // Allumer la pièce si l'heure actuelle est comprise entre l'heure de début et l'heure de fin
+            roomState.state = true;
+          } else {
+            // Eteindre la pièce si l'heure actuelle n'est pas comprise entre l'heure de début et l'heure de fin
+            roomState.state = false;
+          }
+        }
+      }
+      if (roomState.previousState !== roomState.state) {
+        this.logEvent(room, roomState.state, false);
+      }
+    });
 
-    // Logique pour la salle de bain
-    if (currentHour >= 23 || currentHour < 7) {
-      this.salleDeBainButtonClass = 'btn-off';
-    } else {
-      this.salleDeBainButtonClass = 'btn-on';
-    }
-
-    // Logique pour le garage
-    if (currentHour === 7 || (currentHour > 7 && currentHour < 9)) {
-      this.garageButtonClass = 'btn-on';
-    } else {
-      this.garageButtonClass = 'btn-off';
-    }
-
-    // Logique pour la PAC
-    if (currentHour >= 23 || currentHour < 7) {
-      this.pacButtonClass = 'btn-off';
-    } else {
-      this.pacButtonClass = 'btn-on';
-    }
-
-    // Logique pour la piscine
-    if (currentHour >= 23) {
-      this.piscineButtonClass = 'btn-off';
-    } else {
-      this.piscineButtonClass = 'btn-on';
-    }
-
-    this.checkStateChanges(previousState);
-
+    console.log(this.roomStates);
   }
 
-  checkStateChanges(previousState: any): void {
-    // Vérifiez les changements d'état pour chaque pièce
-    if (previousState.buanderie !== this.buanderieButtonClass) {
-      this.logEvent('Buanderie', this.buanderieButtonClass);
-    }
-    if (previousState.salleManger !== this.salleMangerButtonClass) {
-      this.logEvent('Buanderie', this.buanderieButtonClass);
-    }
-    if (previousState.salleDeBain !== this.salleDeBainButtonClass) {
-      this.logEvent('Salle de bain', this.salleDeBainButtonClass);
-    }
-    if (previousState.garage !== this.garageButtonClass) {
-      this.logEvent('Garage', this.garageButtonClass);
-    }
-    if (previousState.pac !== this.pacButtonClass) {
-      this.logEvent('PAC', this.pacButtonClass);
-    }
-    if (previousState.piscine !== this.piscineButtonClass) {
-      this.logEvent('Piscine', this.piscineButtonClass);
-    }
-  }
-
-  logEvent(room: string, state: string): void {
+  logEvent(room: string, state: boolean, forced: boolean): void {
     const time = this.currentDateTime.toLocaleTimeString();
-    // Utilisation de l'état explicite
+    let eventState: string;
+
+    if (state === true) {
+      eventState = 'allumée';
+    } else {
+      eventState = 'éteinte';
+    }
+
+    if (forced) {
+      eventState += ' (forcée)';
+    }
+
     const event: EventLog = {
       time: time,
       room: room,
-      state: this.stateLabels[state] || state  // Utilisation de l'état explicite s'il est défini, sinon utilisez l'état brut
+      state: eventState
     };
     this.eventLog.push(event);
+  }
+
+  forced(room: string): void {
+    // Forcer l'état de la pièce spécifiée
+    if (this.roomStates[room].forced) {
+      this.roomStates[room].state = false;
+    } else {
+      this.roomStates[room].state = true;
+    }
+    this.roomStates[room].forced = !this.roomStates[room].forced;
+    this.logEvent(room, this.roomStates[room].state, true);
   }
 }
