@@ -1,9 +1,12 @@
 <div class="container d-flex justify-content-between">
   <div class="col-6" style="margin-top: 10px;">
     <div class="d-flex align-items-center justify-content-between" *ngFor="let room of roomStates | keyvalue">
-      <button class="btn-etat" [ngClass]="room.value.state ? 'btn-on' : 'btn-off'"></button>
+        <button class="btn-etat" [ngClass]="room.value.state ? 'btn-on' : 'btn-off'">
+          <i class="bi bi-lightbulb icons" *ngIf="room.value.state"></i>
+          <i class="bi bi-lightbulb-off icons" *ngIf="!room.value.state"></i>
+        </button>
       <span class="room">{{ room.value.name }}</span>
-      <button type="button" class="btn btn-secondary" (click)="forced(room.key)">Forcer</button>
+      <button type="button" class="btn btn-secondary" (click)="forced(room.key)" [ngClass]="room.value.forced ? 'btn-on' : ''">Forcer</button>
     </div>
   </div>
   <div>

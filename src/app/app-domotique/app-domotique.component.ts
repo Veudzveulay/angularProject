@@ -161,7 +161,7 @@ export class AppDomotiqueComponent {
 
     const event: EventLog = {
       time: time,
-      room: room,
+      room: this.roomStates[room].name,
       state: eventState
     };
     this.eventLog.push(event);
@@ -170,11 +170,11 @@ export class AppDomotiqueComponent {
   forced(room: string): void {
     // Forcer l'état de la pièce spécifiée
     if (this.roomStates[room].forced) {
-      this.roomStates[room].state = false;
+      this.roomStates[room].forced = !this.roomStates[room].forced;
     } else {
-      this.roomStates[room].state = true;
+      this.roomStates[room].state = !this.roomStates[room].state;
+      this.roomStates[room].forced = !this.roomStates[room].forced;
+      this.logEvent(room, this.roomStates[room].state, true);
     }
-    this.roomStates[room].forced = !this.roomStates[room].forced;
-    this.logEvent(room, this.roomStates[room].state, true);
   }
 }
