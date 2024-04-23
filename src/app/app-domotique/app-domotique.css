@@ -3,8 +3,15 @@
     color: white;
   }
   
-  .btn-off {
-    background-color: red;
-    color: white;
-  }
+.btn-off {
+  background-color: red;
+  color: white;
+}
+
+.btn-etat {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+}
   

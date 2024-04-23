@@ -1,19 +1,15 @@
 <div class="container d-flex">
   <!-- Partie gauche avec 6 boutons -->
   <div class="col-6">
-    <div class="row">
-      <div class="col">
-        <button [ngClass]="salleDeBainButtonClass">Salle de bain</button>
-        <span>Texte à côté du bouton 1</span>
-        <button type="button" class="btn btn-secondary">Forçage</button>
-      </div>
+    <div class="d-flex align-items-center">
+      <button class="btn-etat" [ngClass]="salleDeBainButtonClass"></button>
+      <span class="px-5">Salle de bain</span>
+      <button type="button" class="btn btn-secondary">Forçage</button>
     </div>
-    <div class="row">
-      <div class="col">
-        <button [ngClass]="buanderieButtonClass">Salle de bain</button>
-        <span>Texte à côté du bouton 1</span>
-        <button type="button" class="btn btn-secondary">Forçage</button>
-      </div>
+    <div class="d-flex align-items-center mt-3">
+      <button class="btn-etat" [ngClass]="buanderieButtonClass"></button>
+      <span class="px-5"> Buanderie </span>
+      <button type="button" class="btn btn-secondary">Forçage</button>
     </div>
   </div>
   <!-- Partie droite avec horloge et bouton -->
