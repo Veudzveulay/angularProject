@@ -1,19 +1,39 @@
 <div class="container d-flex">
   <!-- Partie gauche avec 6 boutons -->
   <div class="col-6">
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center justify-content-between">
       <button class="btn-etat" [ngClass]="salleDeBainButtonClass"></button>
-      <span class="px-5">Salle de bain</span>
-      <button type="button" class="btn btn-secondary">Forçage</button>
+      <span class="room">Salle de bain</span>
+      <button type="button" class="btn btn-secondary">Forcer</button>
     </div>
-    <div class="d-flex align-items-center mt-3">
+    <div class="d-flex align-items-center justify-content-between mt-3">
+      <button class="btn-etat" [ngClass]="salleMangerButtonClass"></button>
+      <span class="room"> Salle à manger </span>
+      <button type="button" class="btn btn-secondary">Forcer</button>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mt-3">
       <button class="btn-etat" [ngClass]="buanderieButtonClass"></button>
-      <span class="px-5"> Buanderie </span>
-      <button type="button" class="btn btn-secondary">Forçage</button>
+      <span class="room"> Buanderie </span>
+      <button type="button" class="btn btn-secondary">Forcer</button>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mt-3">
+      <button class="btn-etat" [ngClass]="garageButtonClass"></button>
+      <span class="room"> Garage </span>
+      <button type="button" class="btn btn-secondary">Forcer</button>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mt-3">
+      <button class="btn-etat" [ngClass]="pacButtonClass"></button>
+      <span class="room"> PAC </span>
+      <button type="button" class="btn btn-secondary">Forcer</button>
+    </div>
+    <div class="d-flex align-items-center justify-content-between mt-3">
+      <button class="btn-etat" [ngClass]="piscineButtonClass"></button>
+      <span class="room"> Piscine </span>
+      <button type="button" class="btn btn-secondary" >Forcer</button>
     </div>
   </div>
   <!-- Partie droite avec horloge et bouton -->
-  <div class="col-6">
+  <div class="col-6 d-flex justify-content-center">
     <div class="row">
       <div class="col">
         <h2>Horloge</h2>
@@ -21,5 +41,15 @@
         <button class="btn btn-primary" (click)="add30Minutes()">Ajouter 30 minutes</button>
       </div>
     </div>
+  </div>
+</div>
+<div class="container mt-4">
+  <div class="col-12">
+    <h2>Journal des événements</h2>
+    <ul>
+      <li *ngFor="let event of eventLog">
+        {{ event.time }} - {{ event.room }} - {{ event.state }}
+      </li>
+    </ul>
   </div>
 </div>
