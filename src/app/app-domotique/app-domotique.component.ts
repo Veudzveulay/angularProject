@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RoomService } from '../room.service';
 
 // Définition de l'interface EventLog
 interface EventLog {
@@ -16,75 +17,14 @@ export class AppDomotiqueComponent {
 
   currentDateTime: Date;
 
-  roomStates: { [key: string]: { 
-    name: string, 
-    state: boolean, 
-    previousState: boolean, 
-    forced: boolean, 
-    startTime: string, 
-    endTime: string, 
-    reversed: boolean 
-  } } = {
-    buanderie: { 
-      name: "Buanderie", 
-      state: false, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:30', 
-      endTime: '10:30', 
-      reversed: false 
-    },
-    salleDeBain: { 
-      name: "Salle de bain", 
-      state: false, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:30', 
-      endTime: '10:30', 
-      reversed: false 
-    },
-    salleManger: { 
-      name: "Salle a manger", 
-      state: false, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:30', 
-      endTime: '10:30', 
-      reversed: false 
-    },
-    garage: { 
-      name: "Garage", 
-      state: false, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:00', 
-      endTime: '09:00', 
-      reversed: false 
-    },
-    pac: { 
-      name: "P.A.C", 
-      state: false, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:00', 
-      endTime: '23:00', 
-      reversed: true 
-    },
-    piscine: { 
-      name: "Piscine", 
-      state: true, 
-      previousState: false, 
-      forced: false, 
-      startTime: '07:00', 
-      endTime: '23:00', 
-      reversed: true 
-    }
-  };
+  roomStates = {};
+
+  constructor(private roomService: RoomService) { }
+
   eventLog: EventLog[] = [];
 
-  constructor() { }
-
   ngOnInit(): void {
+    this.roomStates = this.roomService.roomStates;
     this.updateDateTime();
     this.updateRoomStates(); // Appeler la méthode pour mettre à jour l'état des pièces en fonction de l'heure
     setInterval(() => {
@@ -112,13 +52,32 @@ export class AppDomotiqueComponent {
 
   updateRoomStates(): void {
     const currentHour = this.currentDateTime.getHours();
+    let instruction_bool = false;
 
     // Sauvegarde de l'état précédent
     Object.keys(this.roomStates).forEach((room) => {
       this.roomStates[room].previousState = this.roomStates[room].state;
       const roomState = this.roomStates[room];
 
-      if (roomState.startTime && roomState.endTime && !roomState.forced) {
+      if (roomState.instruction.length > 0 && !roomState.forced) {
+        roomState.instruction.forEach((instruction) => {
+          const startHour = parseInt(instruction.startTime.split(':')[0]);
+          const endHour = parseInt(instruction.endTime.split(':')[0]);
+          const instructionDate = instruction.Date;
+
+          if (this.currentDateTime.getDate() === instructionDate.getDate() && this.currentDateTime.getMonth() === instructionDate.getMonth() && this.currentDateTime.getFullYear() === instructionDate.getFullYear()) {
+            if (currentHour >= startHour && instruction.state === false) {
+                roomState.state = true;
+                instruction.state = true;
+                instruction_bool = true;
+            } else if (currentHour >= endHour && instruction.state === true) {
+                roomState.state = false;
+                instruction_bool = true;
+            }
+          }
+        });
+      }
+      else if (roomState.startTime && roomState.endTime && !roomState.forced) {
         const startHour = parseInt(roomState.startTime.split(':')[0]);
         const endHour = parseInt(roomState.endTime.split(':')[0]);
 
@@ -138,14 +97,12 @@ export class AppDomotiqueComponent {
         }
       }
       if (roomState.previousState !== roomState.state) {
-        this.logEvent(room, roomState.state, false);
+        this.logEvent(room, roomState.state, false, instruction_bool);
       }
     });
-
-    console.log(this.roomStates);
   }
 
-  logEvent(room: string, state: boolean, forced: boolean): void {
+  logEvent(room: string, state: boolean, forced: boolean, instruction: boolean): void {
     const time = this.currentDateTime.toLocaleTimeString();
     let eventState: string;
 
@@ -157,6 +114,10 @@ export class AppDomotiqueComponent {
 
     if (forced) {
       eventState += ' (forcée)';
+    }
+
+    if (instruction) {
+      eventState += ' (instruction)';
     }
 
     const event: EventLog = {
@@ -174,7 +135,7 @@ export class AppDomotiqueComponent {
     } else {
       this.roomStates[room].state = !this.roomStates[room].state;
       this.roomStates[room].forced = !this.roomStates[room].forced;
-      this.logEvent(room, this.roomStates[room].state, true);
+      this.logEvent(room, this.roomStates[room].state, true, false);
     }
   }
 }
